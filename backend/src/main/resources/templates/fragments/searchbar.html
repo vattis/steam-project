@@ -1,0 +1,20 @@
+<!-- fragments/searchbar.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="searchBar">
+    <div class="search-bar">
+        <form th:action="@{/product/search}" method="get">
+            <select name="tag">
+                <option value="all" th:selected="${searchTag == 'all'}">전체</option>
+                <option value="name" th:selected="${searchTag == 'name'}">제목</option>
+                <option value="developer" th:selected="${searchTag == 'developer'}">제작사</option>
+            </select>
+            <input type="text" name="searchWord" placeholder="검색어를 입력하세요..."
+                   th:value="${searchWord}" />
+            <button type="submit">검색</button>
+        </form>
+    </div>
+</div>
+</body>
+</html>

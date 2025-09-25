@@ -1,0 +1,75 @@
+<!-- src/main/resources/templates/friends-invitations.html -->
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>받은 초대</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        :root{ --bg:#1b2838; --panel:#22384e; --panel2:#1f2f40; --card:#2a475e; --line:#3a556a; --text:#fff; --muted:#c6d4df; --accent:#66c0f4; --danger:#ff6961; }
+        *{box-sizing:border-box} html,body{height:100%}
+        body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple SD Gothic Neo","Noto Sans KR",sans-serif}
+        .wrap{min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:8vh 16px 40px}
+        .container{width:100%;max-width:920px}
+        .card{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:0 10px 30px rgba(0,0,0,.25),inset 0 0 0 1px rgba(255,255,255,.02)}
+        .title{margin:0 0 8px;font-weight:800;letter-spacing:.2px;color:#eaf6ff;font-size:20px}
+        .meta{margin:6px 2px 14px;color:var(--muted);font-size:14px}
+        .list{display:grid;gap:12px}
+        .inv-card{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+        .avatar{width:44px;height:44px;border-radius:8px;border:1px solid #3a6a86;object-fit:cover;flex:0 0 auto}
+        .info{flex:1 1 auto;min-width:0}
+        .name{font-weight:700;font-size:16px;color:#eaf6ff;margin:0 0 2px}
+        .sub{color:#c6d4df;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .actions{display:flex;gap:8px}
+        .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:38px;padding:0 14px;border-radius:10px;cursor:pointer;border:1px solid #2f6e94;background:linear-gradient(180deg,var(--accent),#1a9fff);color:#06253b;font-weight:800;text-decoration:none}
+        .btn-danger{background:#2b2228;border:1px solid #5a3a3a;color:#ffd5d3}
+        .empty{margin-top:8px;text-align:center;color:var(--muted);padding:28px 12px;border:1px dashed var(--line);border-radius:12px;background:#22384e}
+        .flash{margin-bottom:10px;color:#d9f7ff}
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments/nav :: navbar(${currentUser})}"></div>
+<div class="wrap">
+    <div class="container">
+        <section class="card">
+            <h1 class="title">받은 초대</h1>
+
+            <div th:if="${msg != null}" class="flash" th:text="${msg}">메시지</div>
+            <div class="meta" th:text="|총 ${result != null ? #lists.size(result) : 0}건|">총 0건</div>
+
+            <div class="empty" th:if="${result == null or #lists.isEmpty(result)}">받은 친구 초대가 없습니다.</div>
+
+            <div class="list" th:if="${result != null and !#lists.isEmpty(result)}">
+                <article class="inv-card" th:each="inv : ${result}">
+                    <img class="avatar"
+                         th:src="${#strings.isEmpty(inv.toMember.avatarUrl) ? '/images/profile-image.jpg' : inv.toMember.avatarUrl}"
+                         alt="프로필 이미지" loading="lazy" />
+                    <div class="info">
+                        <h3 class="name" th:text="${inv.toMember.nickname}">nickname</h3>
+                        <div class="sub">
+                            <a th:href="@{/profile/{id}(id=${inv.toMember.id}, commentPageNum=${0})}" style="color:#9bd1ff;text-decoration:none">프로필 보기</a>
+                        </div>
+                    </div>
+
+                    <div class="actions">
+                        <!-- 수락 -->
+                        <form th:action="@{/friendships/{toMemberId}(toMemberId=${inv.toMember.id})}" method="post">
+                            <input type="hidden" name="_method" value="PATCH"/>
+                            <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                            <button type="submit" class="btn">수락</button>
+                        </form>
+
+                        <!-- 거절 -->
+                        <form th:action="@{/friendships/{toMemberId}(toMemberId=${inv.fromMember.id})}" method="post">
+                            <input type="hidden" name="_method" value="DELETE"/>
+                            <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                            <button type="submit" class="btn btn-danger">거절</button>
+                        </form>
+                    </div>
+                </article>
+            </div>
+        </section>
+    </div>
+</div>
+</body>
+</html>

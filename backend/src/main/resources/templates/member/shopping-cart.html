@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <title>장바구니 - Steam 스타일</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root{
+            --bg:#171a21; --panel:#1b2838; --panel-2:#2a475e; --text:#c7d5e0; --muted:#99a7b5;
+            --accent:#66c0f4; --accent-2:#417a9b; --danger:#e74c3c; --danger-2:#c0392b;
+        }
+        *{box-sizing:border-box}
+        body{margin:0;background:var(--bg);color:var(--text);font-family:Roboto,system-ui,apple-system,Segoe UI,sans-serif}
+        a{color:var(--text);text-decoration:none}
+        a:hover{color:var(--accent)}
+        .container{max-width:1100px;margin:24px auto;padding:16px}
+        .grid{display:grid;grid-template-columns:2fr 1fr;gap:16px}
+        @media (max-width:960px){.grid{grid-template-columns:1fr}}
+        .card{background:var(--panel);border-radius:10px;box-shadow:0 6px 20px rgba(0,0,0,.25);overflow:hidden}
+        .card-header{padding:16px 20px;border-bottom:1px solid var(--accent)}
+        .card-header h1,.card-header h2{margin:0;color:var(--accent);font-size:20px}
+        .bulk{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.15)}
+        .items-empty{padding:40px;text-align:center;color:var(--muted)}
+        .item{display:grid;grid-template-columns:auto 1fr auto;gap:14px;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.06);align-items:center}
+        .item:last-child{border-bottom:none}
+        .thumb{width:120px;height:60px;border-radius:6px;object-fit:cover;background:#0e151f}
+        .title{font-weight:700}
+        .price-col{text-align:right}
+        .price{font-weight:700}
+        .btn{display:inline-flex;align-items:center;justify-content:center;border:none;border-radius:8px;padding:10px 12px;cursor:pointer;font-weight:700}
+        .btn-danger{background:var(--danger);color:#fff}
+        .btn-danger:hover{background:var(--danger-2)}
+        .btn-primary{background:var(--accent);color:#0b1420}
+        .btn-primary:hover{background:var(--accent-2);color:#fff}
+        .btn-sm{padding:8px 10px;border-radius:6px;font-weight:600}
+        .w-100{width:100%}
+        .mt-12{margin-top:12px}
+        .summary-body{padding:16px 20px}
+        .line{display:flex;justify-content:space-between;margin:10px 0}
+        .pager{display:flex;justify-content:space-between;align-items:center;padding:12px 16px}
+        .pager .info{color:var(--muted);font-size:13px}
+        .pager a, .pager span{padding:8px 12px;border-radius:6px;background:var(--panel-2);color:#fff;text-decoration:none}
+        .pager .disabled{opacity:.4;pointer-events:none}
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="grid">
+
+        <!-- 아이템 리스트 + 선택 삭제 -->
+        <section class="card">
+            <div class="card-header"><h1>장바구니</h1></div>
+
+            <!-- 하나의 폼에서 bulk/단건 삭제를 모두 처리 (formaction으로 액션 분기) -->
+            <form th:action="@{/shoppingCartProduct/bulk}" method="post">
+                <input type="hidden" name="_method" value="delete" />
+                <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+                <!-- 비어있을 때 -->
+                <div class="items-empty"
+                     th:if="${#lists.isEmpty(shoppingCartProductPage.content)}">장바구니가 비어 있어요.</div>
+
+                <!-- 선택 삭제 안내 -->
+                <div class="bulk" th:if="${not #lists.isEmpty(shoppingCartProductPage.content)}">
+                    <span class="muted">삭제할 항목을 체크하고 버튼을 누르세요</span>
+                    <!-- 기본 action(/shoppingCartProduct/bulk)으로 제출 -->
+                    <button type="submit" class="btn btn-danger btn-sm">선택 삭제</button>
+                </div>
+
+                <!-- 아이템 목록 -->
+                <div th:each="ci : ${shoppingCartProductPage.content}"
+                     th:unless="${#lists.isEmpty(shoppingCartProductPage.content)}"
+                     class="item">
+                    <div>
+                        <label>
+                            <!-- bulk 삭제 파라미터 -->
+                            <input type="checkbox" name="shoppingCartProductIds" th:value="${ci.id}" />
+                            <img class="thumb"
+                                 th:src="${ci.avatarUrl != null and ci.avatarUrl != '' ? ci.avatarUrl : '/images/game-image.jpeg'}"
+                                 alt="게임 이미지" />
+                        </label>
+                    </div>
+
+                    <div>
+                        <div class="title" th:text="${ci.productName}">상품명</div>
+                    </div>
+
+                    <div class="price-col">
+                        <div>
+                            <span class="price"
+                                  th:text="|₩ ${#numbers.formatInteger(ci.productPrice, 0, 'COMMA')}|">₩ 9,900</span>
+                        </div>
+
+                        <!-- 단건 삭제: 동일 폼이지만 버튼에 formaction으로 개별 엔드포인트 지정 -->
+                        <button type="submit"
+                                class="btn btn-danger btn-sm w-100 mt-12"
+                                th:formaction="@{/shoppingCartProduct/{shoppingCartProductId}(shoppingCartProductId=${ci.id})}">
+                            삭제
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 페이지네이션 -->
+                <div class="pager" th:if="${shoppingCartProductPage.totalPages > 1}">
+                    <a th:classappend="${shoppingCartProductPage.first} ? ' disabled'"
+                       th:href="@{/shoppingCart(pageNo=${shoppingCartProductPage.number - 1})}">이전</a>
+                    <span class="info"
+                          th:text="|${shoppingCartProductPage.number + 1} / ${shoppingCartProductPage.totalPages} 페이지|">1 / 1 페이지</span>
+                    <a th:classappend="${shoppingCartProductPage.last} ? ' disabled'"
+                       th:href="@{/shoppingCart(pageNo=${shoppingCartProductPage.number + 1})}">다음</a>
+                </div>
+            </form>
+        </section>
+
+        <!-- 주문 요약 -->
+        <aside class="card">
+            <div class="card-header"><h2>주문 요약</h2></div>
+            <div class="summary-body">
+                <div class="line">
+                    <span>총 상품 수</span>
+                    <span th:text="${shoppingCartProductPage.totalElements}">0</span>
+                </div>
+                <form th:action="@{/checkout}" method="post">
+                    <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <button class="btn btn-primary w-100" type="submit">구매하기</button>
+                </form>
+            </div>
+        </aside>
+
+    </div>
+</div>
+</body>
+</html>

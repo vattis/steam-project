@@ -1,0 +1,107 @@
+<!-- src/main/resources/templates/friends.html -->
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <title>친구 목록</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root{ --bg:#1b2838; --panel:#22384e; --panel2:#1f2f40; --card:#2a475e; --line:#3a556a; --text:#fff; --muted:#c6d4df; --accent:#66c0f4; --danger:#ff6961; }
+    *{box-sizing:border-box} html,body{height:100%}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple SD Gothic Neo","Noto Sans KR",sans-serif}
+
+    .wrap{min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:8vh 16px 40px}
+    .container{width:100%;max-width:920px}
+    .card{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:0 10px 30px rgba(0,0,0,.25),inset 0 0 0 1px rgba(255,255,255,.02)}
+    .title{margin:0 0 8px;font-weight:800;letter-spacing:.2px;color:#eaf6ff;font-size:20px}
+    .meta{margin:6px 2px 14px;color:var(--muted);font-size:14px}
+
+    .list{display:grid;gap:12px}
+    .friend-card{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+    .avatar{width:44px;height:44px;border-radius:8px;border:1px solid #3a6a86;object-fit:cover;flex:0 0 auto}
+    .info{flex:1 1 auto;min-width:0}
+    .name{font-weight:700;font-size:16px;color:#eaf6ff;margin:0 0 2px}
+    .sub{color:#c6d4df;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .actions{display:flex;gap:8px}
+
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:38px;padding:0 14px;border-radius:10px;cursor:pointer;border:1px solid #2f6e94;background:linear-gradient(180deg,var(--accent),#1a9fff);color:#06253b;font-weight:800;text-decoration:none}
+    .btn-outline{background:transparent;border:1px solid #4b6f86;color:#cfefff}
+    .btn-danger{background:#2b2228;border:1px solid #5a3a3a;color:#ffd5d3}
+
+    .empty{margin-top:8px;text-align:center;color:var(--muted);padding:28px 12px;border:1px dashed var(--line);border-radius:12px;background:#22384e}
+    .flash{margin-bottom:10px;color:#d9f7ff}
+
+    .paginate{display:flex;gap:6px;justify-content:center;margin:18px 0 4px}
+    .paginate a, .paginate span{
+      padding:8px 12px;border:1px solid var(--line);border-radius:10px;text-decoration:none;
+      color:#d9e6ef;background:#1b2b3a
+    }
+    .paginate a:hover{background:#244158;color:#fff;border-color:#2a5d84}
+    .paginate .active{background:#0e1a25;color:#fff;border-color:#2a5d84}
+  </style>
+</head>
+<body>
+<div th:replace="~{fragments/nav :: navbar(${currentUser})}"></div>
+
+<div class="wrap">
+  <div class="container">
+    <section class="card">
+      <h1 class="title">친구 목록</h1>
+
+      <div class="flash" th:if="${msg != null}" th:text="${msg}">메시지</div>
+      <div class="meta"
+           th:text="|전체 ${friends != null ? friends.totalElements : 0}명 · 페이지 ${friends != null ? friends.number + 1 : 1} / ${friends != null ? friends.totalPages : 1}|">
+        전체 0명
+      </div>
+
+      <div class="empty" th:if="${friends == null or friends.empty}">등록된 친구가 없습니다.</div>
+
+      <div class="list" th:if="${friends != null and !friends.empty}">
+        <article class="friend-card" th:each="f : ${friends}">
+          <img class="avatar"
+               th:src="${#strings.isEmpty(f.toMember.avatarUrl) ? '/images/profile-image.jpg' : f.toMember.avatarUrl}"
+               alt="프로필 이미지" loading="lazy" />
+          <div class="info">
+            <h3 class="name" th:text="${f.toMember.nickname}">닉네임</h3>
+            <div class="sub">
+              <a th:href="@{/profile/{id}(id=${f.toMember.id}, commentPageNum=${0})}"
+                 style="color:#9bd1ff;text-decoration:none">프로필 보기</a>
+              <span th:text="' · 회원번호 ' + ${f.toMember.id}"> · 회원번호</span>
+            </div>
+          </div>
+
+          <div class="actions">
+            <a class="btn btn-outline" th:href="@{/chatRoom/{partnerId}(partnerId=${f.toMember.id})}">메시지</a>
+
+            <!-- 친구 끊기 / 신청 거절: DELETE /friendships/{toMemberId} -->
+            <form th:action="@{/friendships/{toMemberId}(toMemberId=${f.toMember.id})}" method="post"
+                  onsubmit="return confirm('친구를 끊을까요?');">
+              <input type="hidden" name="_method" value="DELETE"/>
+              <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+              <button type="submit" class="btn btn-danger">친구 끊기</button>
+            </form>
+          </div>
+        </article>
+      </div>
+
+      <!-- 페이지네이션 -->
+      <div class="paginate" th:if="${friends != null and friends.totalPages > 1}">
+        <a th:if="${friends.hasPrevious()}"
+           th:href="@{/friends(page=${friends.number - 1}, size=${friends.size})}">이전</a>
+
+        <span th:each="i : ${#numbers.sequence(0, friends.totalPages - 1)}"
+              th:classappend="${i} == ${friends.number} ? 'active'">
+          <a th:if="${i != friends.number}"
+             th:href="@{/friends(page=${i}, size=${friends.size})}"
+             th:text="${i + 1}">1</a>
+          <span th:if="${i == friends.number}" th:text="${i + 1}">1</span>
+        </span>
+
+        <a th:if="${friends.hasNext()}"
+           th:href="@{/friends(page=${friends.number + 1}, size=${friends.size})}">다음</a>
+      </div>
+    </section>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Steam 상점</title>
+    <style>
+        body {
+            background-color: #1b2838;
+            color: #c7d5e0;
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+        }
+
+        .navbar {
+            background-color: #171a21;
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar a {
+            color: #c7d5e0;
+            margin-right: 20px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .navbar a:hover {
+            color: #66c0f4;
+        }
+
+        .search-bar {
+            background-color: #1b2838;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .search-bar form {
+            display: flex;
+            align-items: center;
+            border-radius: 6px;
+            overflow: hidden;
+            background-color: #2a475e;
+        }
+
+        .search-bar select {
+            padding: 10px 12px;
+            font-size: 14px;
+            border: none;
+            background-color: #2a475e;
+            color: #c7d5e0;
+            outline: none;
+            appearance: none;
+            border-right: 1px solid #1b2838;
+            cursor: pointer;
+        }
+
+        .search-bar input[type="text"] {
+            width: 200px;
+            padding: 10px 12px;
+            font-size: 14px;
+            border: none;
+            background-color: #2a475e;
+            color: #c7d5e0;
+            outline: none;
+        }
+
+        .search-bar input[type="text"]::placeholder {
+            color: #8f98a0;
+        }
+
+        .search-bar button {
+            padding: 10px 18px;
+            font-size: 14px;
+            border: none;
+            background-color: #66c0f4;
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .search-bar button:hover {
+            background-color: #417a9b;
+        }
+
+        .section {
+            padding: 40px;
+        }
+
+        .section-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            color: #ffffff;
+        }
+
+        .more-link {
+            font-size: 0.95rem;
+            color: #66c0f4;
+            text-decoration: none;
+        }
+
+        .more-link:hover {
+            text-decoration: underline;
+        }
+
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .game-card {
+            background-color: #2a475e;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: transform 0.2s ease;
+        }
+
+        .game-card:hover {
+            transform: scale(1.03);
+        }
+
+        .game-card img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+        }
+
+        .info {
+            padding: 10px;
+        }
+
+        .title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .price {
+            color: #66c0f4;
+            font-size: 14px;
+        }
+
+        .footer {
+            background-color: #171a21;
+            text-align: center;
+            color: #808080;
+            padding: 20px;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- 네비게이션 바 -->
+<div th:replace="~{fragments/nav :: navbar(${currentUser})}"></div>
+
+<!-- 검색창 -->
+<div th:replace="~{fragments/searchbar :: searchBar}"></div>
+
+<!-- 할인 게임 -->
+<div class="section">
+    <div class="section-inner">
+        <div class="section-header">
+            <h2>할인 중인 게임</h2>
+            <a class="more-link" th:href="@{'/shop/product?filter=discount'}">전체 보기 &raquo;</a>
+        </div>
+        <div class="game-grid">
+            <div class="game-card" th:each="game : ${discountProducts}">
+                <a th:href="@{'/product/' + ${game.id}}">
+                    <img th:src="${game.imageUrl != null and game.imageUrl != '' ? game.imageUrl : '/images/game-image.jpeg'}" alt="게임 이미지">
+                    <div class="info">
+                        <div class="title" th:text="${game.name}">게임 이름</div>
+                        <div class="price">
+                            <span style="text-decoration: line-through; color: #888;" th:text="'₩ ' + ${game.price}">₩ 19800</span>
+                            <span style="color: #66c0f4; font-weight: bold; margin-left: 8px;" th:text="'₩ ' + ${game.getDiscountPrice()}">₩ 9900</span>
+                            <span style="color: #ff6868; margin-left: 6px; font-size: 13px;" th:text="'(-' + ${game.discountRate} + '%)'">(-50%)</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 인기 게임 -->
+<div class="section">
+    <div class="section-inner">
+        <div class="section-header">
+            <h2>인기 게임</h2>
+            <a class="more-link" th:href="@{'/shop/product?filter=popular'}">전체 보기 &raquo;</a>
+        </div>
+        <div class="game-grid">
+            <div class="game-card" th:each="game : ${popularProducts}">
+                <a th:href="@{'/product/' + ${game.id}}">
+                    <img th:src="${game.imageUrl != null and game.imageUrl != '' ? game.imageUrl : '/images/game-image.jpeg'}" alt="게임 이미지">
+                    <div class="info">
+                        <div class="title" th:text="${game.name}">게임 이름</div>
+                        <div class="price" th:text="'₩ ' + ${game.price}">₩ 19800</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 푸터 -->
+<div class="footer">
+    © 2025 Steam Clone. All rights reserved.
+</div>
+
+</body>
+</html>

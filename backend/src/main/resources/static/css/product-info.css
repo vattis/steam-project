@@ -1,0 +1,257 @@
+body {
+    background-color: #1b2838;
+    color: #c7d5e0;
+    font-family: 'Segoe UI', 'Malgun Gothic', Arial, sans-serif;
+    margin: 0;
+}
+
+.container {
+    max-width: 800px;
+    margin: 40px auto 0 auto;
+    background: #16202d;
+    border-radius: 14px;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.4);
+    padding: 36px 40px 32px 40px;
+}
+
+.game-header {
+    display: flex;
+    gap: 30px;
+    align-items: flex-start;
+    margin-bottom: 30px;
+}
+
+.game-image {
+    width: 220px;
+    height: 310px;
+    object-fit: cover;
+    border-radius: 12px;
+    box-shadow: 0 2px 14px rgba(60,90,120,0.3);
+    background: #253047;
+}
+
+.game-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.game-info h1 {
+    color: #66c0f4;
+    font-size: 2.2rem;
+    margin-bottom: 16px;
+    font-weight: bold;
+    line-height: 1.2;
+    letter-spacing: -1px;
+}
+
+.game-info p {
+    font-size: 1.08rem;
+    margin: 10px 0 0 0;
+    color: #c7d5e0;
+}
+
+.purchase-section {
+    background: #22304a;
+    border-radius: 10px;
+    padding: 24px 28px 18px 28px;
+    margin-bottom: 36px;
+    margin-top: 18px;
+    box-shadow: 0 2px 16px rgba(36,44,63,0.18);
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
+.price-box {
+    flex: 1 1 240px;
+    display: flex;
+    align-items: baseline;
+    gap: 15px;
+}
+
+.original-price {
+    text-decoration: line-through;
+    color: #888;
+    font-size: 1.05rem;
+    font-weight: 500;
+    margin-right: 5px;
+}
+
+.discounted-price {
+    color: #66c0f4;
+    font-weight: bold;
+    font-size: 1.32rem;
+    margin-right: 6px;
+    letter-spacing: 0.5px;
+}
+
+.discount-rate {
+    color: #ff6868;
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+.purchase-button form,
+.purchase-button a {
+    display: inline-block;
+}
+
+.purchase-button button,
+.purchase-button .login-link {
+    padding: 10px 36px;
+    font-size: 1.08rem;
+    border: none;
+    border-radius: 6px;
+    background: #66c0f4;
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(70, 180, 255, 0.12);
+    margin-left: 10px;
+    transition: background 0.18s;
+    text-decoration: none;
+    outline: none;
+}
+
+.purchase-button button:hover,
+.purchase-button .login-link:hover {
+    background: #417a9b;
+    color: #fff;
+}
+
+.review-section {
+    margin-top: 48px;
+    background: #182535;
+    border-radius: 12px;
+    padding: 30px 26px 22px 26px;
+    color: #c7d5e0;
+    box-shadow: 0 2px 12px rgba(60,70,80,0.13);
+}
+
+.review-section h2 {
+    font-size: 1.3rem;
+    color: #66c0f4;
+    margin-bottom: 18px;
+}
+
+.review-form {
+    margin-bottom: 24px;
+}
+
+.review-form textarea {
+    width: 100%;
+    padding: 13px 14px;
+    border-radius: 8px;
+    border: none;
+    background: #22304a;
+    color: #fff;
+    font-size: 1.05rem;
+    resize: vertical;
+    margin-bottom: 8px;
+}
+
+.review-form .form-actions {
+    text-align: right;
+}
+
+.review-form button {
+    background: #66c0f4;
+    color: #fff;
+    padding: 8px 22px;
+    border: none;
+    border-radius: 7px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1.04rem;
+    box-shadow: 0 2px 8px rgba(70,180,255,0.10);
+}
+
+.review-form button:hover {
+    background: #417a9b;
+}
+
+.review-form .login-link {
+    background: none;
+    color: #66c0f4;
+    padding: 0;
+    margin: 0;
+    font-size: 1rem;
+    text-decoration: underline;
+    border: none;
+    cursor: pointer;
+}
+
+.review-list {
+    border-top: 1px solid #253142;
+    padding-top: 18px;
+    margin-top: 12px;
+}
+
+.review-item {
+    margin-bottom: 22px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #202c3d;
+}
+
+.review-meta {
+    font-size: 13px;
+    color: #8f98a0;
+    margin-bottom: 6px;
+}
+
+.review-user {
+    font-weight: bold;
+    margin-right: 8px;
+    color: #b7cadb;
+}
+
+.review-date {
+    font-size: 12px;
+}
+
+.review-content {
+    font-size: 1.07rem;
+    color: #eaf6ff;
+    word-break: break-all;
+}
+.rating-group {
+    display: inline-flex;
+    flex-direction: row-reverse; /* 높은 점수가 왼쪽 */
+    gap: 4px;
+    margin-bottom: 8px;
+}
+.rating-group input {
+    display: none;
+}
+.rating-group label {
+    font-size: 24px;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: transform 0.05s ease, opacity 0.1s ease;
+}
+.rating-group label:hover,
+.rating-group label:hover ~ label {
+    opacity: 1;
+}
+.rating-group input:checked ~ label {
+    opacity: 1;
+}
+.rating-group label:active { transform: scale(0.95); }
+
+/* ===== 별점 표시 ===== */
+.review-stars span,
+.avg-stars span {
+    font-size: 18px;
+    margin-right: 2px;
+    line-height: 1;
+}
+
+/* 반응형 */
+@media (max-width: 900px) {
+    .container { max-width: 99%; padding: 22px 6px; }
+    .game-header { flex-direction: column; align-items: stretch; gap: 18px; }
+    .game-image { width: 100%; height: 220px; }
+    .purchase-section { flex-direction: column; gap: 12px; padding: 18px 12px; }
+}

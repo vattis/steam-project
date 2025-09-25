@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Steam 프로필</title>
+    <style>
+        body {
+            background-color: #171a21;
+            color: #c7d5e0;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .profile-container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #1b2838;
+            border-radius: 10px;
+            display: grid;
+            grid-template-columns: 3fr 1fr;
+            grid-template-rows: auto auto auto;
+            grid-template-areas:
+                "header friend"
+                "games friend"
+                "comments friend";
+            gap: 30px;
+            align-items: start;
+        }
+
+        .profile-header {
+            grid-area: header;
+            display: flex;
+            align-items: center;
+        }
+
+        .avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 10px;
+            margin-right: 20px;
+        }
+
+        .username {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .recent-games {
+            grid-area: games;
+            margin-top: 30px;
+        }
+
+        .game {
+            background-color: #2a475e;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .game-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .playtime {
+            font-size: 14px;
+            color: #acb2b8;
+        }
+
+        .comments {
+            grid-area: comments;
+            margin-top: 40px;
+        }
+
+        .comment-box {
+            background-color: #2a475e;
+            margin-bottom: 6px;
+            padding: 6px 10px;
+            border-radius: 6px;
+        }
+
+        .comment-form {
+            margin-top: 2rem;
+        }
+
+        .comment-form textarea {
+            width: 100%;
+            border-radius: 6px;
+            border: none;
+            padding: 10px;
+            resize: vertical;
+        }
+
+        .comment-form button {
+            margin-top: 10px;
+            padding: 8px 16px;
+            background-color: #66c0f4;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .friend-list {
+            grid-area: friend;
+            background-color: #2a475e;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .friend {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .friend img {
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            margin-right: 10px;
+        }
+
+        a.link {
+            color: #c7d5e0;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        a.link:hover {
+            color: #66c0f4;
+            text-decoration: underline;
+        }
+
+        a.image-link img {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        a.image-link:hover img {
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(102, 192, 244, 0.5);
+        }
+
+        .pagination {
+            text-align: center;
+            margin: 1.5rem 0 2rem 0;
+        }
+
+        .pagination ul {
+            list-style: none;
+            display: inline-flex;
+            gap: 0.5rem;
+            padding: 0;
+            margin: 0;
+        }
+
+        .pagination a {
+            padding: 0.4rem 0.7rem;
+            border-radius: 4px;
+            background-color: #2f3b4c;
+            color: #c7d5e0;
+            text-decoration: none;
+        }
+
+        .pagination a:hover {
+            background-color: #417a9b;
+        }
+
+        .active-page {
+            background-color: #66c0f4 !important;
+            color: #ffffff !important;
+            font-weight: bold;
+        }
+
+        /* 본인 댓글 삭제 버튼 UI */
+        .comment-meta-row{
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .delete-button-small{
+            background-color: #e74c3c;
+            color: #fff;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .delete-button-small:hover{ background-color: #c0392b; }
+        .inline{ display:inline; }
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments/nav :: navbar(${currentUser})}"></div>
+
+<div class="profile-container" th:with="profile=${profileDto}">
+
+    <!-- 프로필 헤더 -->
+    <div class="profile-header">
+        <img class="avatar"
+             th:src="${#strings.isEmpty(profile.profileMember.avatarUrl)} ? '/images/profile-image.jpg' : ${profile.profileMember.avatarUrl}"
+             alt="프로필 이미지">
+        <div class="username" th:text="${profile.profileMember.nickname}">사용자 이름</div>
+    </div>
+
+    <!-- 최근 게임 -->
+    <div class="recent-games">
+        <h3>최근 플레이한 게임</h3>
+        <div th:each="game : ${profile.simpleMemberGames}">
+            <div class="game">
+                <a th:href="@{'/product/' + ${game.gameId}}" class="image-link">
+                    <img th:src="${#strings.isEmpty(game.gameImageUrl) ? '/images/game-image.jpeg' : game.gameImageUrl}"
+                         alt="Game Image"
+                         style="max-width: 250px; width: 100%; border-radius: 8px;">
+                </a>
+                <div>
+                    <a th:href="@{'/product/' + ${game.gameId}}" class="link">
+                        <div class="game-title" th:text="${game.gameName}">게임 제목</div>
+                    </a>
+                    <div class="playtime" th:text="|플레이 시간: ${game.playTime}|">플레이 시간</div>
+                    <div class="playtime"
+                         th:text="|마지막 플레이: ${#temporals.format(game.lastPlayTime, 'yyyy-MM-dd HH:mm')}|">
+                        마지막 플레이
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 댓글 -->
+    <div class="comments">
+        <h3>프로필 댓글</h3>
+        <div th:each="comment : ${profile.profileCommentPage.content}">
+            <div class="comment-box">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <a th:href="@{'/profile/' + ${comment.memberId}}" class="image-link">
+                        <img style="width: 36px; height: 36px; border-radius: 6px;"
+                             th:src="${#strings.isEmpty(comment.avatarUrl)} ? '/images/profile-image.jpg' : ${comment.avatarUrl}"
+                             alt="작성자 아바타" />
+                    </a>
+                    <a th:href="@{'/profile/' + ${comment.memberId}}" class="link">
+                        <strong th:text="${comment.nickname}">작성자</strong>
+                    </a>
+                </div>
+
+                <p th:text="${comment.content}" style="margin: 8px 0 0 0;">댓글 내용</p>
+
+                <!-- 본인 댓글만 삭제 버튼 노출 -->
+                <div class="comment-meta-row">
+                    <small th:text="${#temporals.format(comment.createdTime, 'yyyy-MM-dd HH:mm')}">2025-05-23</small>
+
+                    <form th:if="${currentUser != null and currentUser.id == comment.memberId}"
+                          th:action="@{/profileComment/{id}(id=${comment.id})}"
+                          method="post" class="inline">
+                        <input type="hidden" name="_method" value="delete"/>
+                        <input type="hidden" name="profileId" th:value="${profile.profileMember.id}"/>
+
+                        <!-- CSRF가 모델에 있을 때만 렌더 -->
+                        <input type="hidden" th:if="${_csrf != null}"
+                               th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                        <button type="submit" class="delete-button-small">삭제</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- 페이지네이션 -->
+        <div class="pagination" th:if="${profile.profileCommentPage.totalPages > 0}">
+            <ul>
+                <li th:if="${profile.profileCommentPage.hasPrevious()}">
+                    <a th:href="@{'/profile/' + ${profile.profileMember.id} + '?pageNo=' + (${profile.profileCommentPage.number} - 1)}">&laquo; 이전</a>
+                </li>
+                <li th:each="page : ${#numbers.sequence(0, profile.profileCommentPage.totalPages - 1)}">
+                    <a th:href="@{'/profile/' + ${profile.profileMember.id} + '?pageNo=' + ${page}}"
+                       th:text="${page + 1}"
+                       th:classappend="${page == profile.profileCommentPage.number} ? 'active-page' : ''"></a>
+                </li>
+                <li th:if="${profile.profileCommentPage.hasNext()}">
+                    <a th:href="@{'/profile/' + ${profile.profileMember.id} + '?pageNo=' + (${profile.profileCommentPage.number} + 1)}">&laquo; 이전</a>
+                </li>
+            </ul>
+        </div>
+
+        <form class="comment-form" th:action="@{/profileComment}" method="post">
+            <input type="hidden" name="memberId" th:value="${currentUser.id}" />
+            <input type="hidden" name="profileId" th:value="${profile.profileMember.id}" />
+            <textarea name="content" placeholder="댓글을 입력하세요" rows="3"></textarea>
+            <button type="submit">댓글 작성</button>
+        </form>
+    </div>
+
+    <!-- 친구 목록 -->
+    <div class="friend-list">
+        <h3>친구 목록</h3>
+        <div th:each="friend : ${profileDto.friendships}">
+            <div class="friend">
+                <a th:href="@{'/profile/' + ${friend.toMember.id}}" class="image-link">
+                    <img th:src="${#strings.isEmpty(friend.getToMember().avatarUrl)} ? '/images/profile-image.jpg' : ${friend.avatarUrl}"
+                         alt="친구 이미지" />
+                </a>
+                <a th:href="@{'/profile/' + ${friend.toMember.id}}" class="link">
+                    <div th:text="${friend.getToMember().nickname}">친구 닉네임</div>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

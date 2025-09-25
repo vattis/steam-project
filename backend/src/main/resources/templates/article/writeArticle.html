@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>글 작성 | Steam 커뮤니티</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #1b2838;
+            color: #c7d5e0;
+        }
+
+        header {
+            background-color: #171a21;
+            padding: 1rem 2rem;
+        }
+
+        header h1 {
+            color: #66c0f4;
+            margin: 0;
+        }
+
+        main {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: #2a475e;
+            border-radius: 8px;
+        }
+
+        h2 {
+            color: #ffffff;
+        }
+
+        form input, form textarea {
+            width: 100%;
+            padding: 0.75rem;
+            margin: 0.75rem 0;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        form button {
+            padding: 0.6rem 1.4rem;
+            background-color: #66c0f4;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        form button:hover {
+            background-color: #417a9b;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>글 작성</h1>
+</header>
+
+<main>
+    <h2 th:text="'[' + ${galleryName} + '] 게시글 작성'"></h2>
+    <form th:action="@{'/article/' + ${articleWriteForm.galleryName}}" method="post" th:object="${articleWriteForm}">
+        <input type="text" th:field="*{title}" placeholder="제목을 입력하세요" required />
+        <textarea th:field="*{content}" rows="10" placeholder="내용을 입력하세요" required></textarea>
+        <button type="submit">작성 완료</button>
+    </form>
+</main>
+
+</body>
+</html>

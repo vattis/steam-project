@@ -1,0 +1,138 @@
+<!-- fragments/navbar.html -->
+<div th:fragment="navbar(currentUser)">
+  <!-- ▼ fragment와 함께 삽입되는 스타일: 어디에 include해도 동작 -->
+  <style>
+    /* 스코프 래퍼 */
+    #nav-scope { display:flex; align-items:center; background:#171a21; padding:20px; }
+    #nav-scope .menu-right { display:flex; align-items:center; margin-left:auto; }
+    #nav-scope a { color:#c6d4df; text-decoration:none; }
+    #nav-scope a:hover { color:#ffffff; }
+
+    /* 닉네임/로그아웃 묶음 */
+    #nav-scope .user-menu { display:inline-flex; align-items:center; gap:20px; }
+
+    /* 닉네임 */
+    #nav-scope .user-nick {
+      margin-left:40px; color:#3ecf8e; font-weight:bold; text-decoration:none;
+      position:relative; z-index:2; /* 확장 hover 버퍼 위에 오도록 */
+    }
+
+    /* 닉네임만 기준점 (레이아웃 변형 없음) */
+    #nav-scope #nickWrap { position:relative; display:inline-block; }
+
+    /* 🔥 Hover 범위 확장 버퍼(보이지 않음): 닉네임 주변+아래쪽 갭을 메움 */
+    #nav-scope #nickWrap::before,
+    #nav-scope #nickWrap::after {
+      content:"";
+      position:absolute;
+      z-index:1;
+    }
+    /* 좌우/위아래 여유 영역 */
+    #nav-scope #nickWrap::before {
+      top:-6px; bottom:-6px; left:-10px; right:-10px;
+    }
+    /* 닉네임과 드롭다운 사이의 '브리지' 영역(깜빡임 방지) */
+    #nav-scope #nickWrap::after {
+      top:100%; left:-12px; right:-12px; height:16px;
+    }
+
+    /* ▼ 드롭다운 박스: 닉네임 정중앙 아래로, 살짝 축소 */
+    #nav-scope #friendMenu {
+      position:absolute;
+      top:calc(100% + 6px);
+      left:50%;                 /* 중앙 기준 */
+      right:auto;
+      transform:translateX(-50%);
+      min-width:150px;          /* 180 → 150으로 축소 */
+      width:max-content;        /* 내용에 맞춤 */
+      max-width:220px;          /* 너무 길어지지 않게 */
+      background:#1b2838;
+      border:1px solid #2a475e;
+      border-radius:8px;
+      padding:8px;              /* 10px → 8px */
+      display:none !important;  /* 전역 CSS 충돌 방지 */
+      box-shadow:0 8px 20px rgba(0,0,0,.35);
+      z-index:1000;
+      text-align:center;        /* 내부 텍스트 중앙 정렬 백업 */
+    }
+
+    /* 닉네임 hover/포커스일 때만 보이기 (버퍼 덕분에 접근 쉬움) */
+    #nav-scope #nickWrap:hover  #friendMenu,
+    #nav-scope #nickWrap:focus-within #friendMenu {
+      display:block !important;
+    }
+
+    /* '회원 검색' / '받은 초대' 링크: 중앙 정렬 + 컴팩트 + 테두리 제거 */
+    #nav-scope .friend-link {
+      display:block;               /* 넓은 클릭 영역 */
+      padding:8px 10px;            /* 컴팩트 */
+      border-radius:6px;
+      color:#c6d4df;
+      text-decoration:none;
+      white-space:nowrap;
+      text-align:center;           /* ✅ 중앙 정렬 */
+      border:none;                 /* ✅ 버튼 테두리 제거 */
+      outline:none;                /* 기본 아웃라인 제거 (아래 box-shadow로 대체) */
+    }
+    #nav-scope .friend-link:hover { background:#2a475e; color:#fff; }
+    #nav-scope .friend-link + .friend-link { margin-top:4px; } /* 버튼 간격 축소 */
+
+    /* 접근성 포커스: outline 대신 box-shadow로 표시 (시각적 테두리 느낌 최소화) */
+    #nav-scope .user-nick:focus,
+    #nav-scope .friend-link:focus {
+      outline:none;
+      box-shadow:0 0 0 2px #66c0f4;
+      border-radius:6px;
+    }
+  </style>
+
+  <div id="nav-scope">
+    <!-- 왼쪽: 로고 -->
+    <div style="flex-shrink:0;">
+      <a href="/" style="text-decoration:none;">
+        <h1 style="margin:0; color:#66c0f4;">Steam</h1>
+      </a>
+    </div>
+
+    <!-- 오른쪽: 메뉴 -->
+    <nav class="menu-right">
+      <a href="/shop/product" style="margin-left:20px;">상점</a>
+
+      <a th:if="${currentUser != null}"
+         th:href="@{/library/{memberId}(memberId=${currentUser.id})}"
+         style="margin-left:20px;">라이브러리</a>
+
+      <a href="/galleries" style="margin-left:20px;">커뮤니티</a>
+
+      <a th:if="${currentUser != null}"
+         th:href="@{/shoppingCart}"
+         style="margin-left:20px;">장바구니</a>
+
+      <!-- 비로그인 -->
+      <span sec:authorize="isAnonymous()">
+        <a href="/login" style="margin-left:40px; color:#3ecf8e; font-weight:bold;">로그인</a>
+      </span>
+
+      <!-- 로그인: 닉네임 hover 시 드롭다운 노출 -->
+      <span sec:authorize="isAuthenticated()" class="user-menu">
+        <!-- 닉네임 래퍼(여기에만 hover 적용) -->
+        <span id="nickWrap">
+          <a class="user-nick"
+             th:href="@{/profile/{memberId}(memberId=${currentUser.id}, commentPageNum=${0})}"
+             th:text="${currentUser.nickName}"
+             aria-haspopup="true" aria-expanded="false">프로필</a>
+
+          <!-- 드롭다운 메뉴 -->
+          <div id="friendMenu" role="menu" aria-label="User quick actions">
+            <a class="friend-link" role="menuitem" th:href="@{/friendships/{memberId}(memberId=${currentUser.id})}">친구 목록</a>
+            <a class="friend-link" role="menuitem" th:href="@{/members/search}">회원 검색</a>
+            <a class="friend-link" role="menuitem" th:href="@{/friendships}">받은 초대</a>
+          </div>
+        </span>
+
+        <!-- 로그아웃: 드롭다운과 분리(위치 고정) -->
+        <a th:href="@{/log-out}" style="color:#ff6961; font-weight:bold;">로그아웃</a>
+      </span>
+    </nav>
+  </div>
+</div>

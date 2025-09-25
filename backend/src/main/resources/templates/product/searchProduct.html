@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Steam 상점</title>
+    <style>
+        body {
+            background-color: #1b2838;
+            color: #c7d5e0;
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+        }
+
+        .navbar {
+            background-color: #171a21;
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar a {
+            color: #c7d5e0;
+            margin-right: 20px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .navbar a:hover {
+            color: #66c0f4;
+        }
+
+        .search-bar {
+            background-color: #1b2838;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .search-bar form {
+            display: flex;
+            align-items: center;
+            border-radius: 6px;
+            overflow: hidden;
+            background-color: #2a475e;
+        }
+
+        .search-bar select,
+        .search-bar input[type="text"] {
+            padding: 10px 12px;
+            font-size: 14px;
+            border: none;
+            background-color: #2a475e;
+            color: #c7d5e0;
+            outline: none;
+        }
+
+        .search-bar input::placeholder {
+            color: #8f98a0;
+        }
+
+        .search-bar button {
+            padding: 10px 18px;
+            font-size: 14px;
+            border: none;
+            background-color: #66c0f4;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .search-bar button:hover {
+            background-color: #417a9b;
+        }
+
+        .section {
+            padding: 40px;
+        }
+
+        .section h2 {
+            margin-bottom: 20px;
+        }
+
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .game-card {
+            background-color: #2a475e;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: transform 0.2s ease;
+        }
+
+        .game-card:hover {
+            transform: scale(1.03);
+        }
+
+        .game-card img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+        }
+
+        .game-card .info {
+            padding: 10px;
+        }
+
+        .game-card .title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .game-card .price {
+            color: #66c0f4;
+            font-size: 14px;
+        }
+
+        .footer {
+            background-color: #171a21;
+            text-align: center;
+            color: #808080;
+            padding: 20px;
+            margin-top: 40px;
+        }
+
+        .pagination {
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .pagination ul {
+            list-style: none;
+            display: inline-flex;
+            gap: 0.5rem;
+            padding: 0;
+            margin: 0;
+        }
+
+        .pagination a {
+            padding: 0.4rem 0.7rem;
+            background-color: #2f3b4c;
+            border-radius: 4px;
+            color: #c7d5e0;
+            text-decoration: none;
+        }
+
+        .pagination a:hover {
+            background-color: #417a9b;
+        }
+
+        .active-page {
+            background-color: #66c0f4 !important;
+            color: #ffffff !important;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<!-- 네비게이션 바 -->
+<div th:replace="~{fragments/nav :: navbar(${currentUser})}"></div>
+
+<!-- 검색창 -->
+<div th:replace="~{fragments/searchbar :: searchBar}"></div>
+
+<!-- 검색 결과 -->
+<div class="section">
+    <h2>검색 결과</h2>
+
+    <div th:if="${searchResults != null and !searchResults.isEmpty()}">
+        <div class="game-grid">
+            <div class="game-card" th:each="game : ${searchResults.content}">
+                <a th:href="@{'/product/' + ${game.id}}">
+                    <img th:src="${game.imageUrl != null and game.imageUrl != '' ? game.imageUrl : '/images/game-image.jpeg'}" alt="게임 이미지">
+                    <div class="info">
+                        <div class="title" th:text="${game.name}">게임 이름</div>
+
+                        <div class="price" th:if="${game.discountRate != null}">
+                            <span style="text-decoration: line-through; color: #888;"
+                                  th:text="'₩ ' + ${game.price}">₩ 19800</span>
+                            <span style="color: #66c0f4; font-weight: bold; margin-left: 8px;"
+                                  th:text="'₩ ' + ${game.getDiscountPrice()}">₩ 9900</span>
+                            <span style="color: #ff6868; margin-left: 6px; font-size: 13px;"
+                                  th:text="'(-' + ${game.discountRate} + '%)'">(-50%)</span>
+                        </div>
+                        <div class="price" th:unless="${game.discountRate != null}"
+                             th:text="'₩ ' + ${game.price}">₩ 19800</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- 페이지네이션 -->
+        <div class="pagination" th:if="${searchResults.totalPages > 0}">
+            <ul>
+                <li th:if="${searchResults.hasPrevious()}">
+                    <a th:href="@{'/product/search?tag=' + ${searchTag} + '&searchWord=' + ${searchWord} + '&pageNo=' + ${searchResults.number - 1}}">
+                        &laquo; 이전
+                    </a>
+                </li>
+
+                <li th:each="page : ${#numbers.sequence(0, searchResults.totalPages - 1)}">
+                    <a th:href="@{'/product/search?tag=' + ${searchTag} + '&searchWord=' + ${searchWord} + '&pageNo=' + ${page}}"
+                       th:text="${page + 1}"
+                       th:classappend="${page == searchResults.number} ? 'active-page' : ''"></a>
+                </li>
+
+                <li th:if="${searchResults.hasNext()}">
+                    <a th:href="@{'/product/search?tag=' + ${searchTag} + '&searchWord=' + ${searchWord} + '&pageNo=' + ${searchResults.number + 1}}">
+                        다음 &raquo;
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+    </div>
+
+    <div th:if="${searchResults == null or searchResults.isEmpty()}" style="text-align: center; color: #8f98a0; margin-top: 40px;">
+        검색 결과가 없습니다.
+    </div>
+</div>
+
+<!-- 푸터 -->
+<div class="footer">
+    © 2025 Steam Clone. All rights reserved.
+</div>
+
+</body>
+</html>

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>커뮤니티 목록 | Steam</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #1b2838;
+      color: #c7d5e0;
+    }
+
+    header {
+      background-color: #171a21;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header h1 {
+      color: #66c0f4;
+      margin: 0;
+    }
+
+    .search-container {
+      display: flex;
+      justify-content: flex-end;
+      max-width: 900px;
+      margin: 1rem auto 0 auto;
+      padding: 0 1rem;
+    }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+    }
+
+    .search-box input[type="text"] {
+      padding: 0.4rem 0.6rem;
+      border-radius: 4px;
+      border: none;
+      outline: none;
+      font-size: 0.95rem;
+      background-color: #2a475e;
+      color: #c7d5e0;
+    }
+
+    .search-box input[type="text"]::placeholder {
+      color: #8f98a0;
+    }
+
+    .search-box button {
+      margin-left: 0.5rem;
+      padding: 0.45rem 0.8rem;
+      background-color: #66c0f4;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .search-box button:hover {
+      background-color: #417a9b;
+    }
+
+    main {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 1rem;
+    }
+
+    .section-title {
+      color: #ffffff;
+      font-size: 1.3rem;
+      margin-bottom: 1rem;
+      margin-top: 2rem;
+      border-bottom: 1px solid #66c0f4;
+      padding-bottom: 0.5rem;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid #66c0f4;
+      padding-bottom: 0.5rem;
+    }
+
+    .section-header h2 {
+      color: #ffffff;
+      font-size: 1.3rem;
+      margin: 0;
+    }
+
+    .section-header a {
+      font-size: 0.9rem;
+      color: #66c0f4;
+      text-decoration: none;
+    }
+
+    .section-header a:hover {
+      text-decoration: underline;
+    }
+
+    .gallery-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1rem;
+    }
+
+    .gallery-card {
+      background-color: #2a475e;
+      padding: 1rem;
+      border-radius: 8px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      cursor: pointer;
+      text-decoration: none;
+      color: #c7d5e0;
+    }
+
+    .gallery-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+    }
+
+    .gallery-title {
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+      color: #ffffff;
+    }
+
+    .gallery-description {
+      font-size: 0.95rem;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+<div th:replace="~{fragments/nav :: navbar(${currentUser})}"></div>
+
+<div class="search-container">
+  <form th:action="@{/gallery/search}" method="get" class="search-box">
+    <input type="text" name="searchWord" placeholder="커뮤니티 검색" />
+    <button type="submit">검색</button>
+  </form>
+</div>
+
+<main>
+  <div th:if="${ownedGalleries != null && !ownedGalleries.isEmpty()}">
+    <div class="section-title">내가 등록한 커뮤니티</div>
+    <div class="gallery-list">
+      <a th:each="gallery : ${ownedGalleries}"
+         th:href="@{'/gallery/' + ${gallery.galleryName}}"
+         class="gallery-card">
+        <div class="gallery-title" th:text="${gallery.galleryName}">커뮤니티 제목</div>
+      </a>
+    </div>
+  </div>
+
+  <!-- 전체 커뮤니티 + 전체 보기 링크 -->
+  <div class="section-header">
+    <h2>전체 커뮤니티</h2>
+    <a th:href="@{/gallery/search(tag='ALL', searchWord='')}">전체 보기 &raquo;</a>
+  </div>
+
+  <div class="gallery-list">
+    <a th:each="gallery : ${galleries}"
+       th:href="@{'/gallery/' + ${gallery.galleryName}}"
+       class="gallery-card">
+      <div class="gallery-title" th:text="${gallery.galleryName}">커뮤니티 제목</div>
+    </a>
+  </div>
+</main>
+</body>
+</html>
