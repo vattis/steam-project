@@ -178,8 +178,8 @@ spring:
       on-profile: redis
   data:
     redis:
-      port: ${REDIS_PORT}
-      host: ${REDIS_HOST}
+      port: ${SPRING_REDIS_PORT}
+      host: ${SPRING_REDIS_HOST}
       ssl:
         enabled: false
       database: 0

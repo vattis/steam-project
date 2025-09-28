@@ -10,8 +10,8 @@ services:
       DB_PORT: 3306
       DB_USERNAME: superhsk00
       DB_PASSWORD: nexonhsk00
-      REDIS_HOST: master.steam-cache-cluster.vx1gza.apn2.cache.amazonaws.com
-      REDIS_PORT: 6379
+      SPRING_REDIS_HOST: master.steam-cache-cluster.vx1gza.apn2.cache.amazonaws.com
+      SPRING_REDIS_PORT: 6379
       JWT_SECRET: YW5kcmV3MDI3MzkyNzg2Mjk0NzQ2Mjk1NjUyOTM3NjQ5NQ==
       MAIL_USERNAME: superhsk00@gmail.com
       MAIL_PASSWORD: kvaelytnqmpofrfy
