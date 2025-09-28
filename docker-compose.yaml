@@ -4,64 +4,20 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     restart: unless-stopped
-    depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: prod
-      DB_HOST: db
+      DB_HOST: database-1.cx08k2wim7je.ap-northeast-2.rds.amazonaws.com
       DB_PORT: 3306
       DB_USERNAME: superhsk00
       DB_PASSWORD: nexonhsk00
-      REDIS_HOST: redis
+      REDIS_HOST: master.steam-cache-cluster.vx1gza.apn2.cache.amazonaws.com
       REDIS_PORT: 6379
       JWT_SECRET: YW5kcmV3MDI3MzkyNzg2Mjk0NzQ2Mjk1NjUyOTM3NjQ5NQ==
       MAIL_USERNAME: superhsk00@gmail.com
       MAIL_PASSWORD: kvaelytnqmpofrfy
-    ports:
-      - "8080:8080"
     networks:
       - steam-network
 
-  db:
-    image: mysql:8.0
-    restart: unless-stopped
-    command: ["mysqld","--default-authentication-plugin=caching_sha2_password"]
-    environment:
-      MYSQL_DATABASE: steam
-      MYSQL_USER: superhsk00
-      MYSQL_PASSWORD: nexonhsk00
-      MYSQL_ROOT_PASSWORD: nexonhsk00
-    volumes:
-      - db-data:/var/lib/mysql
-    networks:
-      - steam-network
-    healthcheck:
-      test: ["CMD-SHELL","mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 30s
-    ports:
-      - "3306:3306"
-
-  redis:
-    image: redis:7-alpine
-    restart: unless-stopped
-    command: ["redis-server","--appendonly","yes"]
-    volumes:
-      - redis-data:/data
-    networks:
-      - steam-network
-    healthcheck:
-      test: ["CMD","redis-cli","ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    # ports:
-    #   - "6379:6379"
   nginx:
     build: ./nginx
     depends_on:
@@ -76,6 +32,3 @@ services:
 networks:
   steam-network:
 
-volumes:
-  db-data:
-  redis-data:
