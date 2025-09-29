@@ -178,10 +178,11 @@ spring:
       on-profile: redis
   data:
     redis:
-      host: ${SPRING_REDIS_HOST}     # ← compose에서 넘긴 값 사용
+      host: ${SPRING_REDIS_HOST}
       port: ${SPRING_REDIS_PORT:6379}
       ssl:
         enabled: true
-      timeout: 5s
+      connect-timeout: 10s
+      timeout: 30s
       repositories:
         enabled: false
