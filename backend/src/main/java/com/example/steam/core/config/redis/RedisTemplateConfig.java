@@ -20,33 +20,6 @@ import java.time.Duration;
 @Configuration
 public class RedisTemplateConfig {
 
-    @Bean
-    public LettuceConnectionFactory lettuceConnectionFactory(RedisProperties redisProperties) {
-        RedisStandaloneConfiguration redisStandaloneConfiguration
-                = new RedisStandaloneConfiguration(redisProperties.getHost(), redisProperties.getPort());
-        if(redisProperties.getPassword() != null) {
-            redisStandaloneConfiguration.setPassword(redisProperties.getPassword());
-        }
-        redisStandaloneConfiguration.setDatabase(redisProperties.getDatabase());
-
-        ClientResources resources = DefaultClientResources.builder()
-                .dnsResolver(DnsResolvers.JVM_DEFAULT)
-                .build();
-
-        ClientOptions options = ClientOptions.builder()
-                .timeoutOptions(TimeoutOptions.enabled(Duration.ofSeconds(10)))
-                .build();
-
-        LettuceClientConfiguration.LettuceClientConfigurationBuilder cd
-                = LettuceClientConfiguration.builder()
-                .clientResources(resources)
-                .clientOptions(options)
-                .commandTimeout(Duration.ofSeconds(2));
-
-        LettuceClientConfiguration lc = cd.build();
-        return new LettuceConnectionFactory(redisStandaloneConfiguration, lc);
-    }
-
     @Bean("jsonRedisTemplate")
     public RedisTemplate<String, Object> jsonRedisTemplate(LettuceConnectionFactory lettuceConnectionFactory) {
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
