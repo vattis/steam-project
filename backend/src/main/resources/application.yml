@@ -180,6 +180,8 @@ spring:
     redis:
       host: ${SPRING_REDIS_HOST}     # ← compose에서 넘긴 값 사용
       port: ${SPRING_REDIS_PORT:6379}
+      ssl:
+        enabled: true
       timeout: 5s
       repositories:
         enabled: false
