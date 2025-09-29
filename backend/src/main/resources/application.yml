@@ -182,7 +182,10 @@ spring:
       port: ${SPRING_REDIS_PORT:6379}
       ssl:
         enabled: true
-      connect-timeout: 10s
-      timeout: 30s
-      repositories:
-        enabled: false
+      connect-timeout: 5s     # 커넥션 타임아웃
+      timeout: 10s            # 커맨드(read) 타임아웃
+      lettuce:
+        pool:
+          max-active: 16
+          max-idle: 8
+          min-idle: 1
