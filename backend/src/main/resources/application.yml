@@ -144,7 +144,12 @@ spring:
       on-profile: load
 logging:
   level:
+    io:
+      lettuce:
+        core: DEBUG
     org:
+      data:
+        redis: DEBUG
       springframework:
         web:
           socket: DEBUG
