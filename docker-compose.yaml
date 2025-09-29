@@ -15,6 +15,7 @@ services:
       JWT_SECRET: YW5kcmV3MDI3MzkyNzg2Mjk0NzQ2Mjk1NjUyOTM3NjQ5NQ==
       MAIL_USERNAME: superhsk00@gmail.com
       MAIL_PASSWORD: kvaelytnqmpofrfy
+      JAVA_TOOL_OPTIONS: -Dio.netty.resolver.dns.use.netty.defaults=false
     networks:
       - steam-network
 

@@ -1,5 +1,10 @@
 package com.example.steam.core.config.redis;
 
+import io.lettuce.core.ClientOptions;
+import io.lettuce.core.TimeoutOptions;
+import io.lettuce.core.resource.ClientResources;
+import io.lettuce.core.resource.DefaultClientResources;
+import io.lettuce.core.resource.DnsResolvers;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,8 +29,18 @@ public class RedisTemplateConfig {
         }
         redisStandaloneConfiguration.setDatabase(redisProperties.getDatabase());
 
+        ClientResources resources = DefaultClientResources.builder()
+                .dnsResolver(DnsResolvers.JVM_DEFAULT)
+                .build();
+
+        ClientOptions options = ClientOptions.builder()
+                .timeoutOptions(TimeoutOptions.enabled(Duration.ofSeconds(10)))
+                .build();
+
         LettuceClientConfiguration.LettuceClientConfigurationBuilder cd
                 = LettuceClientConfiguration.builder()
+                .clientResources(resources)
+                .clientOptions(options)
                 .commandTimeout(Duration.ofSeconds(2));
 
         LettuceClientConfiguration lc = cd.build();
